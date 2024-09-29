@@ -40,6 +40,7 @@ DEFAULT_CLOUDFLARED_ROUTE_RELATION = "cloudflared-route"
 
 
 class CloudflaredRouteProvider(ops.Object):
+    """cloudflared-route provider."""
     def __init__(
         self, charm: ops.CharmBase, relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION
     ):
@@ -77,6 +78,7 @@ class CloudflaredRouteProvider(ops.Object):
 
 
 class CloudflaredRouteRequirer:
+    """cloudflared-route requirer."""
     def __init__(
         self, charm: ops.CharmBase, relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION
     ):
