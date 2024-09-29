@@ -41,6 +41,7 @@ DEFAULT_CLOUDFLARED_ROUTE_RELATION = "cloudflared-route"
 
 class CloudflaredRouteProvider(ops.Object):
     """cloudflared-route provider."""
+
     def __init__(
         self, charm: ops.CharmBase, relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION
     ):
@@ -52,6 +53,13 @@ class CloudflaredRouteProvider(ops.Object):
         )
 
     def set_tunnel_token(self, tunnel_token: str, relation: ops.Relation | None = None) -> None:
+        """Set cloudflared tunnel-token in the integration.
+
+        Args:
+            tunnel_token: The tunnel-token to set.
+            relation: The relation to set the tunnel-token to, if the relation is None, using the
+                only existing cloudflared-route relation.
+        """
         if not relation:
             relation = self._charm.model.get_relation(relation_name=self._relation_name)
         relation_data = relation.data[self._charm.app]
@@ -65,6 +73,12 @@ class CloudflaredRouteProvider(ops.Object):
             secret.set_content({_TUNNEL_TOKEN_SECRET_VALUE_FIELD: tunnel_token})
 
     def unset_tunnel_token(self, relation: ops.Relation | None = None) -> None:
+        """Unset cloudflared tunnel-token in the integration.
+
+        Args:
+            relation: The relation to remote the tunnel-token from, if the relation is None, using
+                the only existing cloudflared-route relation.
+        """
         if not relation:
             relation = self._charm.model.get_relation(relation_name=self._relation_name)
         data = relation.data[self._charm.app]
@@ -79,6 +93,7 @@ class CloudflaredRouteProvider(ops.Object):
 
 class CloudflaredRouteRequirer:
     """cloudflared-route requirer."""
+
     def __init__(
         self, charm: ops.CharmBase, relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION
     ):
@@ -88,6 +103,14 @@ class CloudflaredRouteRequirer:
     def get_tunnel_tokens(
         self, from_relation: ops.Relation | list[ops.Relation] | None = None
     ) -> list[str]:
+        """Get cloudflared tunnel-token from cloudflared-route integrations.
+
+        Args:
+            from_relation: relations to receive the tunnel-token from.
+
+        Returns:
+            A list of cloudflared tunnel-tokens.
+        """
         tunnel_tokens = []
         if from_relation:
             relations = (
