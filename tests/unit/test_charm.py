@@ -207,3 +207,29 @@ def test_unpublish_ingress_url():
     )
 
     assert not out.get_relation(ingress_relation.id).local_app_data.get("ingress")
+
+
+def test_invalid_tunnel_token_config():
+    """
+    arrange: create a scenario with an invalid tunnel-token configuration.
+    act: run the config-changed event
+    assert: charm should enter the blocked state.
+    """
+    context = ops.testing.Context(CloudflareConfiguratorCharm)
+    cloudflared_route_relation = ops.testing.Relation(endpoint="cloudflared-route")
+    secret = ops.testing.Secret(tracked_content={"foobar": "foobar"})
+    config = {"domain": "example.com", "tunnel-token": secret.id}
+
+    out = context.run(
+        context.on.config_changed(),
+        ops.testing.State(
+            leader=True,
+            config=config,
+            secrets=[secret],
+            relations=[cloudflared_route_relation],
+        ),
+    )
+
+    assert out.unit_status == ops.testing.BlockedStatus(
+        f"missing 'tunnel-token' in juju secret: {secret.id}"
+    )

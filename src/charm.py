@@ -18,6 +18,10 @@ from charms.traefik_k8s.v2.ingress import IngressPerAppProvider
 logger = logging.getLogger(__name__)
 
 
+class InvalidConfig(ValueError):
+    """Raised when charm config is invalid."""
+
+
 class CloudflareConfiguratorCharm(ops.CharmBase):
     """Cloudflare configurator charm service."""
 
@@ -46,7 +50,11 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
             return
         self.unit.status = ops.ActiveStatus()
         domain = self.config.get("domain")
-        tunnel_token = self._get_tunnel_tokens()
+        try:
+            tunnel_token = self._get_tunnel_tokens()
+        except InvalidConfig as exc:
+            self.unit.status = ops.BlockedStatus(str(exc))
+            return
         if not (domain and tunnel_token):
             missing = []
             if not domain:
@@ -58,26 +66,32 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
             return
         if relation := self.model.get_relation("cloudflared-route"):
             self._cloudflare_route.set_tunnel_token(tunnel_token, relation=relation)
-            for ingress_relation in self._ingress.relations:
-                self._ingress.publish_url(ingress_relation, f"https://{domain}")
+            if self._ingress.relations:
+                self._ingress.publish_url(self._ingress.relations[0], f"https://{domain}")
         else:
             self._unpublish_ingress_url()
 
     def _unpublish_ingress_url(self) -> None:
         """Unpublish ingress url."""
-        for relation in self._ingress.relations:
-            self._ingress.wipe_ingress_data(relation)
+        if self._ingress.relations:
+            self._ingress.wipe_ingress_data(self._ingress.relations[0])
 
     def _get_tunnel_tokens(self) -> str | None:
         """Receive tunnel tokens from charm configuration.
 
         Returns:
             Cloudflared tunnel token.
+
+        Raises:
+            InvalidConfig: If tunnel-token config is invalid.
         """
         secret_id = typing.cast(str, self.config.get("tunnel-token"))
         if secret_id:
             secret = self.model.get_secret(id=secret_id)
-            return secret.get_content(refresh=True)["tunnel-token"]
+            secret_value = secret.get_content(refresh=True).get("tunnel-token")
+            if secret_value is None:
+                raise InvalidConfig(f"missing 'tunnel-token' in juju secret: {secret_id}")
+            return secret_value
         return None
 
     def _on_get_ingress_data_action(self, event: ops.ActionEvent) -> None:

@@ -14,4 +14,4 @@ jobs:
       self-hosted-runner-label: "edge"
       charmcraft-channel: latest/edge
       provider: lxd
-      juju-channel: 3.3/stable
+      juju-channel: 3.4/stable
