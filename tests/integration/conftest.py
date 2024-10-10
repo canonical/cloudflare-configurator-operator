@@ -90,7 +90,10 @@ async def cloudflared_route_requirer(ops_test: OpsTest) -> juju.application.Appl
                 self.unit.status = ops.ActiveStatus()
 
             def get_tunnel_tokens(self):
-                return self.cloudflared_route.get_tunnel_tokens()
+                return [
+                    self.cloudflared_route.get_tunnel_token(relation)
+                    for relation in self.model.relations["require-cloudflared-route"]
+                ]
         """
     )
     return await ops_test.model.deploy(
