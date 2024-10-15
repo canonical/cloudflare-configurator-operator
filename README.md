@@ -1,26 +1,25 @@
-<!--
-Avoid using this README file for information that is maintained or published elsewhere, e.g.:
+[![CharmHub Badge](https://charmhub.io/cloudflare-configurator/badge.svg)](https://charmhub.io/cloudflare-configurator)
+[![Publish to edge](https://github.com/canonical/cloudflare-configurator/actions/workflows/publish_charm.yaml/badge.svg)](https://github.com/canonical/cloudflare-configurator/actions/workflows/publish_charm.yaml)
+[![Promote charm](https://github.com/canonical/cloudflare-configurator/actions/workflows/promote_charm.yaml/badge.svg)](https://github.com/canonical/cloudflare-configurator/actions/workflows/promote_charm.yaml)
+[![Discourse Status](https://img.shields.io/discourse/status?server=https%3A%2F%2Fdiscourse.charmhub.io&style=flat&label=CharmHub%20Discourse)](https://discourse.charmhub.io)
 
-* metadata.yaml > published on Charmhub
-* documentation > published on (or linked to from) Charmhub
-* detailed contribution guide > documentation or CONTRIBUTING.md
+A [Juju](https://juju.is/) [charm](https://juju.is/docs/olm/charmed-operators) 
+for configuring the [cloudflared charm](https://charmhub.io/cloudflared)
+in your systems.
 
-Use links instead.
--->
+## Project and community
 
-# is-charms-template
+The cloudflare-configurator Operator is a member of the Ubuntu family. It's an
+open source project that warmly welcomes community projects, contributions,
+suggestions, fixes and constructive feedback.
+* [Code of conduct](https://ubuntu.com/community/code-of-conduct)
+* [Get support](https://discourse.charmhub.io/)
+* [Join our online chat](https://matrix.to/#/#charmhub-charmdev:ubuntu.com)
+* [Contribute](https://charmhub.io/cloudflare-configurator/docs/contributing)
+* [Roadmap](https://charmhub.io/cloudflare-configurator/docs/roadmap)
+Thinking about using the cloudflare-configurator charm for your next project? [Get in touch](https://matrix.to/#/#charmhub-charmdev:ubuntu.com)!
 
-Charmhub package name: operator-template
-More information: https://charmhub.io/is-charms-template
+---
 
-Describe your charm in one or two sentences.
-
-## Other resources
-
-<!-- If your charm is documented somewhere else other than Charmhub, provide a link separately. -->
-
-- [Read more](https://example.com)
-
-- [Contributing](CONTRIBUTING.md) <!-- or link to other contribution documentation -->
-
-- See the [Juju SDK documentation](https://juju.is/docs/sdk) for more information about developing and improving charms.
+For further details,
+[see the charm's detailed documentation](https://charmhub.io/cloudflare-configurator/docs).

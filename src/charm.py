@@ -5,28 +5,25 @@
 
 # Learn more at: https://juju.is/docs/sdk
 
-"""Charm the service.
+"""Cloudflared charm service."""
 
-Refer to the following post for a quick-start guide that will help you
-develop a new k8s charm using the Operator Framework:
-
-https://discourse.charmhub.io/t/4208
-"""
-
+import json
 import logging
 import typing
 
 import ops
-from ops import pebble
+from charms.cloudflare_configurator.v0.cloudflared_route import CloudflaredRouteProvider
+from charms.traefik_k8s.v2.ingress import IngressPerAppProvider
 
-# Log messages can be retrieved using juju debug-log
 logger = logging.getLogger(__name__)
 
-VALID_LOG_LEVELS = ["info", "debug", "warning", "error", "critical"]
+
+class InvalidConfig(ValueError):
+    """Raised when charm config is invalid."""
 
 
-class IsCharmsTemplateCharm(ops.CharmBase):
-    """Charm the service."""
+class CloudflareConfiguratorCharm(ops.CharmBase):
+    """Cloudflare configurator charm service."""
 
     def __init__(self, *args: typing.Any):
         """Construct.
@@ -35,83 +32,93 @@ class IsCharmsTemplateCharm(ops.CharmBase):
             args: Arguments passed to the CharmBase parent constructor.
         """
         super().__init__(*args)
-        self.framework.observe(self.on.httpbin_pebble_ready, self._on_httpbin_pebble_ready)
-        self.framework.observe(self.on.config_changed, self._on_config_changed)
+        self._cloudflare_route = CloudflaredRouteProvider(charm=self)
+        self._ingress = IngressPerAppProvider(charm=self)
+        self.framework.observe(self.on.config_changed, self._reconcile)
+        self.framework.observe(self.on.secret_changed, self._reconcile)
+        self.framework.observe(self._ingress.on.data_provided, self._reconcile)
+        self.framework.observe(self.on["cloudflared-route"].relation_changed, self._reconcile)
+        self.framework.observe(self.on.get_ingress_data_action, self._on_get_ingress_data_action)
 
-    def _on_httpbin_pebble_ready(self, event: ops.PebbleReadyEvent) -> None:
-        """Define and start a workload using the Pebble API.
-
-        Change this example to suit your needs. You'll need to specify the right entrypoint and
-        environment configuration for your specific workload.
-
-        Learn more about interacting with Pebble at at https://juju.is/docs/sdk/pebble.
-
-        Args:
-            event: event triggering the handler.
-        """
-        # Get a reference the container attribute on the PebbleReadyEvent
-        container = event.workload
-        # Add initial Pebble config layer using the Pebble API
-        container.add_layer("httpbin", self._pebble_layer, combine=True)
-        # Make Pebble reevaluate its plan, ensuring any services are started if enabled.
-        container.replan()
-        # Learn more about statuses in the SDK docs:
-        # https://juju.is/docs/sdk/constructs#heading--statuses
+    def _reconcile(self, _: ops.EventBase) -> None:
+        """Handle changed configuration."""
+        if not self.unit.is_leader():
+            self.unit.status = ops.BlockedStatus(
+                "this charm only supports a single unit, please remove the additional units "
+                f"using `juju scale-application {self.app.name} 1`"
+            )
+            return
         self.unit.status = ops.ActiveStatus()
+        domain = self.config.get("domain")
+        try:
+            tunnel_token = self._get_tunnel_tokens()
+        except InvalidConfig as exc:
+            self.unit.status = ops.BlockedStatus(str(exc))
+            return
+        if not (domain and tunnel_token):
+            missing = []
+            if not domain:
+                missing.append("domain")
+            if not tunnel_token:
+                missing.append("tunnel-token")
+            self.unit.status = ops.BlockedStatus(f"waiting for {', '.join(missing)} configuration")
+            self._unpublish_ingress_url()
+            return
+        if relation := self.model.get_relation("cloudflared-route"):
+            self._cloudflare_route.set_tunnel_token(tunnel_token, relation=relation)
+            if self._ingress.relations:
+                self._ingress.publish_url(self._ingress.relations[0], f"https://{domain}")
+        else:
+            self._unpublish_ingress_url()
 
-    def _on_config_changed(self, event: ops.ConfigChangedEvent) -> None:
-        """Handle changed configuration.
+    def _unpublish_ingress_url(self) -> None:
+        """Unpublish ingress url."""
+        if self._ingress.relations:
+            self._ingress.wipe_ingress_data(self._ingress.relations[0])
 
-        Change this example to suit your needs. If you don't need to handle config, you can remove
-        this method.
+    def _get_tunnel_tokens(self) -> str | None:
+        """Receive tunnel tokens from charm configuration.
 
-        Learn more about config at https://juju.is/docs/sdk/config
+        Returns:
+            Cloudflared tunnel token.
+
+        Raises:
+            InvalidConfig: If tunnel-token config is invalid.
+        """
+        secret_id = typing.cast(str, self.config.get("tunnel-token"))
+        if secret_id:
+            secret = self.model.get_secret(id=secret_id)
+            secret_value = secret.get_content(refresh=True).get("tunnel-token")
+            if secret_value is None:
+                raise InvalidConfig(f"missing 'tunnel-token' in juju secret: {secret_id}")
+            return secret_value
+        return None
+
+    def _on_get_ingress_data_action(self, event: ops.ActionEvent) -> None:
+        """Handle get-ingress-data action.
 
         Args:
-            event: event triggering the handler.
+            event: Action event.
         """
-        # Fetch the new config value
-        log_level = str(self.model.config["log-level"]).lower()
-
-        # Do some validation of the configuration option
-        if log_level in VALID_LOG_LEVELS:
-            # The config is good, so update the configuration of the workload
-            container = self.unit.get_container("httpbin")
-            # Verify that we can connect to the Pebble API in the workload container
-            if container.can_connect():
-                # Push an updated layer with the new config
-                container.add_layer("httpbin", self._pebble_layer, combine=True)
-                container.replan()
-
-                logger.debug("Log level for gunicorn changed to '%s'", log_level)
-                self.unit.status = ops.ActiveStatus()
-            else:
-                # We were unable to connect to the Pebble API, so we defer this event
-                event.defer()
-                self.unit.status = ops.WaitingStatus("waiting for Pebble API")
-        else:
-            # In this case, the config option is bad, so block the charm and notify the operator.
-            self.unit.status = ops.BlockedStatus("invalid log level: '{log_level}'")
-
-    @property
-    def _pebble_layer(self) -> pebble.LayerDict:
-        """Return a dictionary representing a Pebble layer."""
-        return {
-            "summary": "httpbin layer",
-            "description": "pebble config layer for httpbin",
-            "services": {
-                "httpbin": {
-                    "override": "replace",
-                    "summary": "httpbin",
-                    "command": "gunicorn -b 0.0.0.0:80 httpbin:app -k gevent",
-                    "startup": "enabled",
-                    "environment": {
-                        "GUNICORN_CMD_ARGS": f"--log-level {self.model.config['log-level']}"
-                    },
-                }
-            },
-        }
+        if not self._ingress.relations:
+            event.fail("no ingress relation")
+            return
+        relation = self._ingress.relations[0]
+        data = self._ingress.get_data(relation)
+        event.set_results(
+            {
+                "ingress": json.dumps(
+                    {
+                        "application-data": data.app.model_dump(),
+                        "unit-data": sorted(
+                            [unit.model_dump() for unit in data.units],
+                            key=lambda unit: unit["host"],
+                        ),
+                    }
+                )
+            }
+        )
 
 
 if __name__ == "__main__":  # pragma: nocover
-    ops.main.main(IsCharmsTemplateCharm)
+    ops.main.main(CloudflareConfiguratorCharm)
