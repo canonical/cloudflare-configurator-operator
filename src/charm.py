@@ -66,6 +66,7 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
             return
         if relation := self.model.get_relation("cloudflared-route"):
             self._cloudflare_route.set_tunnel_token(tunnel_token, relation=relation)
+            self._cloudflare_route.set_nameserver(self.config.get("nameserver"), relation=relation)
             if self._ingress.relations:
                 self._ingress.publish_url(self._ingress.relations[0], f"https://{domain}")
         else:
