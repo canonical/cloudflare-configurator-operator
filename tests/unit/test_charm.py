@@ -233,3 +233,56 @@ def test_invalid_tunnel_token_config():
     assert out.unit_status == ops.testing.BlockedStatus(
         f"missing 'tunnel-token' in juju secret: {secret.id}"
     )
+
+
+def test_set_nameserver():
+    """
+    arrange: create a scenario with the `nameserver` charm config.
+    act: run the config-changed event
+    assert: nameserver should be set in the cloudflared-route integration.
+    """
+    context = ops.testing.Context(CloudflareConfiguratorCharm)
+    ingress_relation = ops.testing.Relation(endpoint="ingress")
+    cloudflared_route_relation = ops.testing.Relation(endpoint="cloudflared-route")
+    secret = ops.testing.Secret(tracked_content={"tunnel-token": "foobar"})
+
+    out = context.run(
+        context.on.config_changed(),
+        ops.testing.State(
+            leader=True,
+            config={"domain": "example.com", "tunnel-token": secret.id, "nameserver": "1.2.3.4"},
+            relations=[ingress_relation, cloudflared_route_relation],
+            secrets=[secret],
+        ),
+    )
+    local_app_data = out.get_relation(cloudflared_route_relation.id).local_app_data
+    assert local_app_data["nameserver"] == "1.2.3.4"
+
+
+def test_unset_nameserver():
+    """
+    arrange: create a scenario without the `nameserver` charm config.
+    act: run the config-changed event
+    assert: nameserver should not exist in the ingress integration.
+    """
+    context = ops.testing.Context(CloudflareConfiguratorCharm)
+    ingress_relation = ops.testing.Relation(endpoint="ingress")
+    secret = ops.testing.Secret(tracked_content={"tunnel-token": "foobar"})
+
+    cloudflared_route_relation = ops.testing.Relation(
+        endpoint="cloudflared-route",
+        local_app_data={"nameserver": "1.2.3.4"},
+    )
+
+    out = context.run(
+        context.on.config_changed(),
+        ops.testing.State(
+            leader=True,
+            config={"domain": "example.com", "tunnel-token": secret.id},
+            relations=[ingress_relation, cloudflared_route_relation],
+            secrets=[secret],
+        ),
+    )
+
+    local_app_data = out.get_relation(ingress_relation.id).local_app_data
+    assert "nameserver" not in local_app_data

@@ -9,6 +9,7 @@
 
 import json
 import logging
+import socket
 import typing
 
 import ops
@@ -66,10 +67,24 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
             return
         if relation := self.model.get_relation("cloudflared-route"):
             self._cloudflare_route.set_tunnel_token(tunnel_token, relation=relation)
+            self._cloudflare_route.set_nameserver(
+                self.config.get("nameserver") or self._get_k8s_dns(), relation=relation
+            )
             if self._ingress.relations:
                 self._ingress.publish_url(self._ingress.relations[0], f"https://{domain}")
         else:
             self._unpublish_ingress_url()
+
+    def _get_k8s_dns(self) -> str | None:
+        """Retrieve the current k8s dns address being used.
+
+        Returns:
+            The address of the k8s dns.
+        """
+        try:
+            return socket.gethostbyname("kube-dns.kube-system.svc")
+        except socket.error:
+            return None
 
     def _unpublish_ingress_url(self) -> None:
         """Unpublish ingress url."""
