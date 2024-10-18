@@ -25,7 +25,7 @@ config:
       type: string
       description: >-
         The nameserver used by the cloudflared tunnel.
-        Cloudflared will use system's default resolver if this option is not set.
+        Cloudflared will use kube DNS if this option is not set.
     tunnel-token:
       description: >-
         A juju secret ID, points to a juju secret containing the cloudflared tunnel-token.
