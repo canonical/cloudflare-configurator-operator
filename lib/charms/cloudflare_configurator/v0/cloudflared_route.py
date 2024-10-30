@@ -24,6 +24,7 @@ requires:
 """
 
 import logging
+import typing
 
 import ops
 
@@ -35,7 +36,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 _TUNNEL_TOKEN_SECRET_ID_FIELD = "tunnel_token_secret_id"
 _TUNNEL_TOKEN_SECRET_VALUE_FIELD = "tunnel-token"
@@ -55,81 +56,74 @@ class CloudflaredRouteProvider(ops.Object):
         self, charm: ops.CharmBase, relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION
     ):
         self._charm = charm
-        self._relation_name = relation_name
-        super().__init__(self._charm, self._relation_name)
+        super().__init__(self._charm, relation_name)
+        self.relation = charm.model.get_relation(relation_name)
         self.framework.observe(
             self._charm.on[relation_name].relation_broken, self._on_relation_broken
         )
 
-    def set_tunnel_token(self, tunnel_token: str, relation: ops.Relation | None = None) -> None:
-        """Set cloudflared tunnel-token in the integration.
+    def set_tunnel_token(self, tunnel_token: str | None) -> None:
+        """Update the cloudflared tunnel token in the integration data,
+            no-op if there's no integration.
 
         Args:
-            tunnel_token: The tunnel-token to set.
-            relation: The relation to set the tunnel-token to, if the relation is None, using the
-                only existing cloudflared-route relation.
+            tunnel_token: The tunnel token to set in the integration. If set to None, the tunnel
+                token will be removed from the integration data.
         """
-        if not relation:
-            relation = self._charm.model.get_relation(relation_name=self._relation_name)
-        relation_data = relation.data[self._charm.app]
+        relation_data = self.relation.data[self._charm.app]
         secret_id = relation_data.get(_TUNNEL_TOKEN_SECRET_ID_FIELD)
+        if tunnel_token is None:
+            if secret_id:
+                self._charm.model.get_secret(id=secret_id).remove_all_revisions()
+            del relation_data[_TUNNEL_TOKEN_SECRET_VALUE_FIELD]
+            return
         if not secret_id:
             secret = self._charm.app.add_secret({_TUNNEL_TOKEN_SECRET_VALUE_FIELD: tunnel_token})
-            secret.grant(relation)
+            secret.grant(self.relation)
             relation_data[_TUNNEL_TOKEN_SECRET_ID_FIELD] = secret.id
         else:
             secret = self._charm.model.get_secret(id=secret_id)
-            secret.set_content({_TUNNEL_TOKEN_SECRET_VALUE_FIELD: tunnel_token})
+            content = {_TUNNEL_TOKEN_SECRET_VALUE_FIELD: tunnel_token}
+            if secret.get_content(refresh=True) != content:
+                secret.set_content(content)
 
-    def unset_tunnel_token(self, relation: ops.Relation | None = None) -> None:
-        """Unset cloudflared tunnel-token in the integration.
-
-        Args:
-            relation: The relation to remote the tunnel-token from, if the relation is None, using
-                the only existing cloudflared-route relation.
-        """
-        if not relation:
-            relation = self._charm.model.get_relation(relation_name=self._relation_name)
-        data = relation.data[self._charm.app]
-        secret_id = data.get(_TUNNEL_TOKEN_SECRET_ID_FIELD)
-        if secret_id:
-            self._charm.model.get_secret(id=secret_id).remove_all_revisions()
-        data[_TUNNEL_TOKEN_SECRET_VALUE_FIELD] = ""
-
-    def set_nameserver(self, nameserver: str | None, relation: ops.Relation | None = None) -> None:
-        """Set or unset the nameserver used by the Cloudflared tunnel.
+    def set_nameserver(self, nameserver: str | None) -> None:
+        """Update the nameserver setting in the integration data.
 
         Args:
-            nameserver: The nameserver used by the Cloudflared tunnel.
-            relation: The relation to remote the tunnel-token from, if the relation is None, using
-                the only existing cloudflared-route relation.
+            nameserver: The nameserver used by the Cloudflared tunnel. If set to None, the
+                nameserver will be removed from the integration data.
         """
-        if not relation:
-            relation = self._charm.model.get_relation(relation_name=self._relation_name)
-        data = relation.data[self._charm.app]
+        data = self.relation.data[self._charm.app]
         if nameserver:
             data["nameserver"] = nameserver
         else:
             del data["nameserver"]
 
-    def _on_relation_broken(self, event: ops.RelationBrokenEvent):
-        self.unset_tunnel_token(event.relation)
+    def _on_relation_broken(self, _: ops.RelationBrokenEvent):
+        """Handle the relation-broken event"""
+        self.set_tunnel_token(tunnel_token=None)
 
 
-class CloudflaredRouteRequirer:
+class CloudflaredRouteRequirer(ops.Object):
     """cloudflared-route requirer."""
 
-    def __init__(
-        self, charm: ops.CharmBase, relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION
-    ):
+    @classmethod
+    def list(
+        cls,
+        charm: ops.CharmBase,
+        relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION,
+    ) -> list[typing.Self]:
+        relations = charm.model.relations[relation_name]
+        return [cls(charm=charm, relation=relation) for relation in relations]
+
+    def __init__(self, charm: ops.CharmBase, relation: ops.Relation):
+        super().__init__(charm, f"{relation.name}-{relation.id}")
         self._charm = charm
-        self._relation_name = relation_name
+        self.relation = relation
 
-    def get_tunnel_token(self, relation: ops.Relation) -> str | None:
-        """Get cloudflared tunnel-token from cloudflared-route integrations.
-
-        Args:
-            relation: relation to receive the tunnel-token from.
+    def get_tunnel_token(self) -> str | None:
+        """Get cloudflared tunnel-token from the integration data.
 
         Returns:
             cloudflared tunnel-token.
@@ -137,7 +131,7 @@ class CloudflaredRouteRequirer:
         Raises:
             InvalidIntegration: integration contains invalid data
         """
-        relation_data = relation.data[relation.app]
+        relation_data = self.relation.data[self.relation.app]
         secret_id = relation_data.get(_TUNNEL_TOKEN_SECRET_ID_FIELD)
         if not secret_id:
             return None
@@ -149,13 +143,10 @@ class CloudflaredRouteRequirer:
                 f"secret doesn't have '{_TUNNEL_TOKEN_SECRET_VALUE_FIELD}' field"
             ) from exc
 
-    def get_nameserver(self, relation: ops.Relation) -> str | None:
-        """Get the nameserver used by the Cloudflared tunnel.
-
-        Args:
-            relation: relation to receive the tunnel-token from.
+    def get_nameserver(self) -> str | None:
+        """Get the nameserver setting from the integration data.
 
         Returns:
-            the nameserver used by the Cloudflared tunnel.
+            the nameserver that should be used by the Cloudflared tunnel.
         """
-        return relation.data[relation.app].get("nameserver")
+        return self.relation.data[self.relation.app].get("nameserver")

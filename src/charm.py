@@ -49,12 +49,12 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
                 f"using `juju scale-application {self.app.name} 1`"
             )
             return
-        self.unit.status = ops.ActiveStatus()
         domain = self.config.get("domain")
         try:
             tunnel_token = self._get_tunnel_tokens()
         except InvalidConfig as exc:
             self.unit.status = ops.BlockedStatus(str(exc))
+            self._cleanup()
             return
         if not (domain and tunnel_token):
             missing = []
@@ -62,18 +62,26 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
                 missing.append("domain")
             if not tunnel_token:
                 missing.append("tunnel-token")
-            self.unit.status = ops.BlockedStatus(f"waiting for {', '.join(missing)} configuration")
-            self._unpublish_ingress_url()
+            self.unit.status = ops.WaitingStatus(f"waiting for {', '.join(missing)} configuration")
+            self._cleanup()
             return
-        if relation := self.model.get_relation("cloudflared-route"):
-            self._cloudflare_route.set_tunnel_token(tunnel_token, relation=relation)
-            self._cloudflare_route.set_nameserver(
-                self.config.get("nameserver") or self._get_k8s_dns(), relation=relation
-            )
-            if self._ingress.relations:
-                self._ingress.publish_url(self._ingress.relations[0], f"https://{domain}")
-        else:
-            self._unpublish_ingress_url()
+        if not self._cloudflare_route.relation:
+            self.unit.status = ops.WaitingStatus("waiting for cloudflared-route integration")
+            self._cleanup()
+            return
+        self._cloudflare_route.set_tunnel_token(tunnel_token)
+        self._cloudflare_route.set_nameserver(
+            self.config.get("nameserver") or self._get_k8s_dns()
+        )
+        if self._ingress.relations:
+            self._ingress.publish_url(self._ingress.relations[0], f"https://{domain}")
+        self.unit.status = ops.ActiveStatus()
+
+    def _cleanup(self):
+        if self._cloudflare_route.relation:
+            self._cloudflare_route.set_nameserver(nameserver=None)
+            self._cloudflare_route.set_tunnel_token(tunnel_token=None)
+        self._unpublish_ingress_url()
 
     def _get_k8s_dns(self) -> str | None:
         """Retrieve the current k8s dns address being used.
