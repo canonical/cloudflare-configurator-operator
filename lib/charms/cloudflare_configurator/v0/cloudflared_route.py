@@ -109,15 +109,28 @@ class CloudflaredRouteRequirer(ops.Object):
     """cloudflared-route requirer."""
 
     @classmethod
-    def list(
+    def get_all(
         cls,
         charm: ops.CharmBase,
         relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION,
     ) -> list[typing.Self]:
+        """Retrieve all CloudflaredRouteRequirer objects for the cloudflared-route integration.
+
+        This method generates a list of CloudflaredRouteRequirer instances,
+        each corresponding to a cloudflared-route integration available.
+
+        Args:
+            charm: The charm instance.
+            relation_name: The name of the relation.
+
+        Returns:
+            A list of CloudflaredRouteRequirer objects for each integration.
+        """
         relations = charm.model.relations[relation_name]
         return [cls(charm=charm, relation=relation) for relation in relations]
 
     def __init__(self, charm: ops.CharmBase, relation: ops.Relation):
+        """Instantiate the cloudflared-route requirer."""
         super().__init__(charm, f"{relation.name}-{relation.id}")
         self._charm = charm
         self.relation = relation
