@@ -42,7 +42,7 @@ provides:
     interface: ingress
     limit: 1
   cloudflared-route:
-    interface: cloudflared-route
+    interface: cloudflared_route
     limit: 1
 
 base: ubuntu@24.04
