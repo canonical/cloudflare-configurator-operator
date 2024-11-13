@@ -158,7 +158,8 @@ def test_no_domain_config():
         ),
     )
 
-    assert out.unit_status == ops.testing.BlockedStatus("waiting for domain configuration")
+    assert out.unit_status.name == "waiting"
+    assert out.unit_status.message == "waiting for domain configuration"
 
 
 def test_no_tunnel_token_config():
@@ -180,7 +181,8 @@ def test_no_tunnel_token_config():
         ),
     )
 
-    assert out.unit_status == ops.testing.BlockedStatus("waiting for tunnel-token configuration")
+    assert out.unit_status.name == "waiting"
+    assert out.unit_status.message == "waiting for tunnel-token configuration"
 
 
 def test_unpublish_ingress_url():
