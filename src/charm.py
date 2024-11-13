@@ -75,7 +75,8 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
             self._ingress.publish_url(self._ingress.relations[0], f"https://{domain}")
         self.unit.status = ops.ActiveStatus()
 
-    def _cleanup(self):
+    def _cleanup(self) -> None:
+        """Teardown charm integrations."""
         if self._cloudflare_route.relation:
             self._cloudflare_route.set_nameserver(nameserver=None)
             self._cloudflare_route.set_tunnel_token(tunnel_token=None)
