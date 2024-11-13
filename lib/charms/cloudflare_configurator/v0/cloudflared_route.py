@@ -62,7 +62,7 @@ class CloudflaredRouteProvider(ops.Object):
             self._charm.on[relation_name].relation_broken, self._on_relation_broken
         )
 
-    def set_tunnel_token(self, tunnel_token: str | None) -> None:
+    def set_tunnel_token(self, tunnel_token: typing.Optional[str]) -> None:
         """Update the cloudflared tunnel token in the integration data,
             no-op if there's no integration.
 
@@ -87,7 +87,7 @@ class CloudflaredRouteProvider(ops.Object):
             if secret.get_content(refresh=True) != content:
                 secret.set_content(content)
 
-    def set_nameserver(self, nameserver: str | None) -> None:
+    def set_nameserver(self, nameserver: typing.Optional[str]) -> None:
         """Update the nameserver setting in the integration data.
 
         Args:
@@ -113,7 +113,7 @@ class CloudflaredRouteRequirer(ops.Object):
         cls,
         charm: ops.CharmBase,
         relation_name: str = DEFAULT_CLOUDFLARED_ROUTE_RELATION,
-    ) -> list[typing.Self]:
+    ) -> list["CloudflaredRouteRequirer"]:
         """Retrieve all CloudflaredRouteRequirer objects for the cloudflared-route integration.
 
         This method generates a list of CloudflaredRouteRequirer instances,
@@ -135,7 +135,7 @@ class CloudflaredRouteRequirer(ops.Object):
         self._charm = charm
         self.relation = relation
 
-    def get_tunnel_token(self) -> str | None:
+    def get_tunnel_token(self) -> typing.Optional[str]:
         """Get cloudflared tunnel-token from the integration data.
 
         Returns:
@@ -156,7 +156,7 @@ class CloudflaredRouteRequirer(ops.Object):
                 f"secret doesn't have '{_TUNNEL_TOKEN_SECRET_VALUE_FIELD}' field"
             ) from exc
 
-    def get_nameserver(self) -> str | None:
+    def get_nameserver(self) -> typing.Optional[str]:
         """Get the nameserver setting from the integration data.
 
         Returns:

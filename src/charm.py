@@ -70,9 +70,7 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
             self._cleanup()
             return
         self._cloudflare_route.set_tunnel_token(tunnel_token)
-        self._cloudflare_route.set_nameserver(
-            self.config.get("nameserver") or self._get_k8s_dns()
-        )
+        self._cloudflare_route.set_nameserver(self.config.get("nameserver") or self._get_k8s_dns())
         if self._ingress.relations:
             self._ingress.publish_url(self._ingress.relations[0], f"https://{domain}")
         self.unit.status = ops.ActiveStatus()
