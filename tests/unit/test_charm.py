@@ -101,6 +101,7 @@ def test_get_ingress_data_action():
             "redirect_https": False,
             "scheme": "http",
             "strip_prefix": False,
+            "healthcheck_params": None,
         },
         "unit-data": [
             {"host": "example-host-0", "ip": "10.0.0.1"},
