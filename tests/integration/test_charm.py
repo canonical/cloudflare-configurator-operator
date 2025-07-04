@@ -21,7 +21,9 @@ async def test_build_and_deploy(
     act: relate the cloudflare-configurator charm with related charms.
     assert: no error happens.
     """
-    await model.integrate(f"{cloudflare_configurator.name}:ingress", ingress_requirer.name)
+    await model.integrate(
+        f"{cloudflare_configurator.name}:ingress", f"{ingress_requirer.name}:ingress"
+    )
     await model.integrate(
         f"{cloudflare_configurator.name}:cloudflared-route", cloudflared_route_requirer.name
     )
