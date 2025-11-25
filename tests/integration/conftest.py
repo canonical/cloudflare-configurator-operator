@@ -2,6 +2,7 @@
 # See LICENSE file for licensing details.
 
 """Fixtures for charm integration tests."""
+
 import json
 import pathlib
 import textwrap

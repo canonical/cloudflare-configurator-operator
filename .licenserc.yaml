@@ -9,18 +9,19 @@ header:
       Copyright \d{4} Canonical Ltd.
       See LICENSE file for licensing details.
   paths:
-    - '**'
+  - '**'
   paths-ignore:
-    - '.github/**'
-    - '**/*.json'
-    - '**/*.md'
-    - '**/*.txt'
-    - '.jujuignore'
-    - '.gitignore'
-    - '.licenserc.yaml'
-    - 'CODEOWNERS'
-    - 'LICENSE'
-    - 'trivy.yaml'
-    - 'pyproject.toml'
-    - 'zap_rules.tsv'
+  - '.github/**'
+  - '**/*.json'
+  - '**/*.md'
+  - '**/*.txt'
+  - '.jujuignore'
+  - '.gitignore'
+  - '.licenserc.yaml'
+  - 'CODEOWNERS'
+  - 'LICENSE'
+  - 'trivy.yaml'
+  - 'pyproject.toml'
+  - 'zap_rules.tsv'
+  - 'uv.lock'
   comment: on-failure

@@ -83,7 +83,7 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
         """
         try:
             return socket.gethostbyname("kube-dns.kube-system.svc")
-        except socket.error:
+        except OSError:
             return None
 
     def _unpublish_ingress_url(self) -> None:
