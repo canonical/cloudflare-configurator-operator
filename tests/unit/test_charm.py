@@ -37,7 +37,7 @@ def test_cloudflared_route_tunnel_token():
 
     local_app_data = out.get_relation(cloudflared_route_relation.id).local_app_data
     assert (
-        out.get_secret(id=local_app_data["tunnel_token_secret_id"]).tracked_content["tunnel-token"]
+        out.get_secret(id=local_app_data["tunnel_token_secret_id"]).tracked_content["tunnel-token"]  # type: ignore[index]
         == "foobar"
     )
 
@@ -64,7 +64,7 @@ def test_publish_ingress_url():
     )
 
     assert (
-        out.get_relation(ingress_relation.id).local_app_data["ingress"]
+        out.get_relation(ingress_relation.id).local_app_data["ingress"]  # type: ignore[index]
         == '{"url": "https://example.com/"}'
     )
 
@@ -93,7 +93,7 @@ def test_get_ingress_data_action():
         context.on.action("get-ingress-data"), ops.testing.State(relations=[ingress_relation])
     )
 
-    assert json.loads(context.action_results.get("ingress")) == {
+    assert json.loads(context.action_results.get("ingress")) == {  # type: ignore[arg-type, union-attr]
         "application-data": {
             "model": "example-model",
             "name": "example",
@@ -153,7 +153,7 @@ def test_no_domain_config():
         context.on.config_changed(),
         ops.testing.State(
             leader=True,
-            config=config,
+            config=config,  # type: ignore[arg-type]
             relations=[cloudflared_route_relation],
             secrets=[secret],
         ),
@@ -176,7 +176,7 @@ def test_no_tunnel_token_config():
         context.on.config_changed(),
         ops.testing.State(
             leader=True,
-            config=config,
+            config=config,  # type: ignore[arg-type]
             relations=[cloudflared_route_relation],
         ),
     )
@@ -201,13 +201,13 @@ def test_unpublish_ingress_url():
         context.on.config_changed(),
         ops.testing.State(
             leader=True,
-            config=config,
+            config=config,  # type: ignore[arg-type]
             secrets=[secret],
             relations=[ingress_relation],
         ),
     )
 
-    assert not out.get_relation(ingress_relation.id).local_app_data.get("ingress")
+    assert not out.get_relation(ingress_relation.id).local_app_data.get("ingress")  # type: ignore[attr-defined]
 
 
 def test_invalid_tunnel_token_config():
@@ -225,7 +225,7 @@ def test_invalid_tunnel_token_config():
         context.on.config_changed(),
         ops.testing.State(
             leader=True,
-            config=config,
+            config=config,  # type: ignore[arg-type]
             secrets=[secret],
             relations=[cloudflared_route_relation],
         ),
@@ -257,7 +257,7 @@ def test_set_nameserver():
         ),
     )
     local_app_data = out.get_relation(cloudflared_route_relation.id).local_app_data
-    assert local_app_data["nameserver"] == "1.2.3.4"
+    assert local_app_data["nameserver"] == "1.2.3.4"  # type: ignore[index]
 
 
 def test_unset_nameserver():
@@ -286,4 +286,4 @@ def test_unset_nameserver():
     )
 
     local_app_data = out.get_relation(ingress_relation.id).local_app_data
-    assert "nameserver" not in local_app_data
+    assert "nameserver" not in local_app_data  # type: ignore[attr-defined]
