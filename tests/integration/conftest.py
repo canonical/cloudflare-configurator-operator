@@ -53,7 +53,7 @@ async def ingress_requirer(ops_test: OpsTest) -> juju.application.Application:
                 self.unit.status = ops.ActiveStatus()
         """
     )
-    return await ops_test.model.deploy(
+    return await ops_test.model.deploy(  # type: ignore[union-attr]
         "any-charm",
         "ingress-requirer",
         config={
@@ -97,7 +97,7 @@ async def cloudflared_route_requirer(ops_test: OpsTest) -> juju.application.Appl
                 ]
         """
     )
-    return await ops_test.model.deploy(
+    return await ops_test.model.deploy(  # type: ignore[union-attr]
         "any-charm",
         "cloudflared-route-requirer",
         config={
