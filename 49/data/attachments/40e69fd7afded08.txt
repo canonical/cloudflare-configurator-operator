@@ -1,0 +1,46 @@
+[33mWARNING [0m juju.client.connection:connection.py:858 unexpected facade SSHServer received from the controller
+[32mINFO    [0m pytest_operator.plugin:plugin.py:762 Adding model github-pr-0fa55-lxd:test-charm-axnh on cloud localhost
+[33mWARNING [0m juju.client.connection:connection.py:858 unexpected facade SSHServer received from the controller
+[33mWARNING [0m juju.client.connection:connection.py:858 unexpected facade SSHSession received from the controller
+[33mWARNING [0m juju.client.connection:connection.py:858 unexpected facade SSHTunneler received from the controller
+[32mINFO    [0m juju.model:model.py:2284 Deploying local:cloudflare-configurator-0
+[32mINFO    [0m juju.model:model.py:2284 Deploying ch:amd64/noble/any-charm-124
+[32mINFO    [0m juju.model:model.py:2284 Deploying ch:amd64/noble/any-charm-124
+[32mINFO    [0m juju.model:model.py:3211 Waiting for model:
+  cloudflare-configurator/0 [allocating] waiting: waiting for machine
+  ingress-requirer/0 [allocating] waiting: waiting for machine
+  ingress-requirer/1 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/0 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/1 [allocating] waiting: waiting for machine
+[32mINFO    [0m juju.model:model.py:3211 Waiting for model:
+  cloudflare-configurator/0 [allocating] waiting: waiting for machine
+  ingress-requirer/0 [allocating] waiting: waiting for machine
+  ingress-requirer/1 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/0 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/1 [allocating] waiting: waiting for machine
+[32mINFO    [0m juju.model:model.py:3211 Waiting for model:
+  cloudflare-configurator/0 [allocating] waiting: waiting for machine
+  ingress-requirer/0 [allocating] waiting: waiting for machine
+  ingress-requirer/1 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/0 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/1 [allocating] waiting: waiting for machine
+[32mINFO    [0m juju.model:model.py:3211 Waiting for model:
+  cloudflare-configurator/0 [allocating] waiting: agent initialising
+  ingress-requirer/0 [allocating] waiting: waiting for machine
+  ingress-requirer/1 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/0 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/1 [allocating] waiting: waiting for machine
+[32mINFO    [0m juju.model:model.py:3211 Waiting for model:
+  ingress-requirer/0 [allocating] waiting: waiting for machine
+  ingress-requirer/1 [executing] active: 
+  cloudflared-route-requirer/0 [allocating] waiting: waiting for machine
+  cloudflared-route-requirer/1 [allocating] waiting: waiting for machine
+[32mINFO    [0m juju.model:model.py:3211 Waiting for model:
+  cloudflare-configurator/0 [idle] blocked: waiting for domain, tunnel-token configuration
+  ingress-requirer/0 [allocating] waiting: agent initialising
+  cloudflared-route-requirer/0 [idle] active: 
+  cloudflared-route-requirer/1 [allocating] waiting: waiting for machine
+[32mINFO    [0m juju.model:model.py:3211 Waiting for model:
+  cloudflare-configurator/0 [idle] blocked: waiting for domain, tunnel-token configuration
+  cloudflared-route-requirer/0 [idle] active: 
+  cloudflared-route-requirer/1 [idle] active:

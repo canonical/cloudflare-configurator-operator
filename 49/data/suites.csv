@@ -1,0 +1,16 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"
+    arrange: deploy the cloudflare-configurator charm with related charms.
+    act: relate the cloudflare-configurator charm with related charms.
+    assert: no error happens.
+    ","196413","test_build_and_deploy","tests.integration","2025-12-20","passed","2025-12-20","","test_charm","",""
+"
+    arrange: deploy the cloudflare-configurator charm with related charms.
+    act: set tunnel-token charm configuration of the cloudflare-configurator charm.
+    assert: cloudflare-configurator charm pass the tunnel-token to cloudflared-route requirers.
+    ","18938","test_set_tunnel_token","tests.integration","2025-12-20","passed","2025-12-20","","test_charm","",""
+"
+    arrange: deploy the cloudflare-configurator charm with related charms.
+    act: run get-ingress-data charm action.
+    assert: get-ingress-data charm action dumps ingress integration data.
+    ","1020","test_get_ingress_data","tests.integration","2025-12-20","passed","2025-12-20","","test_charm","",""
