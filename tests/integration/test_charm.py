@@ -4,6 +4,7 @@
 # See LICENSE file for licensing details.
 
 """Integration tests."""
+
 import json
 import logging
 

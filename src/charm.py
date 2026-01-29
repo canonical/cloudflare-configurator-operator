@@ -19,7 +19,7 @@ from charms.traefik_k8s.v2.ingress import IngressPerAppProvider
 logger = logging.getLogger(__name__)
 
 
-class InvalidConfig(ValueError):
+class InvalidConfigError(ValueError):
     """Raised when charm config is invalid."""
 
 
@@ -53,7 +53,7 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
         domain = self.config.get("domain")
         try:
             tunnel_token = self._get_tunnel_tokens()
-        except InvalidConfig as exc:
+        except InvalidConfigError as exc:
             self.unit.status = ops.BlockedStatus(str(exc))
             return
         if not (domain and tunnel_token):
@@ -83,7 +83,7 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
         """
         try:
             return socket.gethostbyname("kube-dns.kube-system.svc")
-        except socket.error:
+        except OSError:
             return None
 
     def _unpublish_ingress_url(self) -> None:
@@ -98,14 +98,14 @@ class CloudflareConfiguratorCharm(ops.CharmBase):
             Cloudflared tunnel token.
 
         Raises:
-            InvalidConfig: If tunnel-token config is invalid.
+            InvalidConfigError: If tunnel-token config is invalid.
         """
         secret_id = typing.cast(str, self.config.get("tunnel-token"))
         if secret_id:
             secret = self.model.get_secret(id=secret_id)
             secret_value = secret.get_content(refresh=True).get("tunnel-token")
             if secret_value is None:
-                raise InvalidConfig(f"missing 'tunnel-token' in juju secret: {secret_id}")
+                raise InvalidConfigError(f"missing 'tunnel-token' in juju secret: {secret_id}")
             return secret_value
         return None
 
