@@ -1,0 +1,100 @@
+[32mINFO    [0m pytest_operator.plugin:plugin.py:951 Model status:
+
+Model            Controller           Cloud/Region         Version  SLA          Timestamp
+test-charm-k6hc  github-pr-12e04-lxd  localhost/localhost  3.6.20   unsupported  15:14:33Z
+
+App                         Version  Status   Scale  Charm                    Channel      Rev  Exposed  Message
+cloudflare-configurator              blocked      1  cloudflare-configurator                 0  no       waiting for domain, tunnel-token configuration
+cloudflared-route-requirer           active     0/2  any-charm                latest/edge  133  no       
+ingress-requirer                     active     1/2  any-charm                latest/edge  133  no       
+
+Unit                           Workload  Agent      Machine  Public address  Ports  Message
+cloudflare-configurator/0*     blocked   executing  0        10.248.136.235         waiting for domain, tunnel-token configuration
+cloudflared-route-requirer/0   unknown   lost       3        10.248.136.16          agent lost, see 'juju show-status-log cloudflared-route-requirer/0'
+cloudflared-route-requirer/1*  unknown   lost       4        10.248.136.100         agent lost, see 'juju show-status-log cloudflared-route-requirer/1'
+ingress-requirer/0             unknown   lost       1        10.248.136.85          agent lost, see 'juju show-status-log ingress-requirer/0'
+ingress-requirer/1*            active    idle       2        10.248.136.118         
+
+Machine  State    Address         Inst id        Base          AZ             Message
+0        started  10.248.136.235  juju-51f94d-0  ubuntu@24.04  runnervm727z3  Running
+1        down     10.248.136.85   juju-51f94d-1  ubuntu@24.04  runnervm727z3  Running
+2        started  10.248.136.118  juju-51f94d-2  ubuntu@24.04  runnervm727z3  Running
+3        down     10.248.136.16   juju-51f94d-3  ubuntu@24.04  runnervm727z3  Running
+4        down     10.248.136.100  juju-51f94d-4  ubuntu@24.04  runnervm727z3  Running
+
+[32mINFO    [0m pytest_operator.plugin:plugin.py:957 Juju error logs:
+
+machine-0: 15:12:58 ERROR juju.worker.dependency "lxd-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-0: 15:12:58 ERROR juju.worker.dependency "kvm-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-2: 15:13:23 ERROR juju.worker.dependency "lxd-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-2: 15:13:23 ERROR juju.worker.dependency "kvm-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-1: 15:13:41 ERROR juju.worker.dependency "kvm-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-1: 15:13:41 ERROR juju.worker.dependency "lxd-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-4: 15:14:00 ERROR juju.worker.dependency "lxd-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-4: 15:14:00 ERROR juju.worker.dependency "kvm-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-3: 15:14:09 ERROR juju.worker.dependency "lxd-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-3: 15:14:09 ERROR juju.worker.dependency "kvm-container-provisioner" manifold worker returned unexpected error: container types not yet available
+machine-3: 15:14:29 ERROR juju.worker.dependency "log-sender" manifold worker returned unexpected error: sending log message: websocket: close 1006 (abnormal closure): unexpected EOF: set tcp 10.248.136.16:59888: use of closed network connection
+machine-0: 15:14:29 ERROR juju.worker.dependency "log-sender" manifold worker returned unexpected error: sending log message: websocket: close 1006 (abnormal closure): unexpected EOF: set tcp 10.248.136.235:42792: use of closed network connection
+machine-0: 15:14:29 ERROR juju.worker.dependency "migration-minion" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-3: 15:14:29 ERROR juju.worker.dependency "migration-minion" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-0: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-4: 15:14:29 ERROR juju.worker.dependency "migration-minion" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "upgrade-series" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "ssh-authkeys-updater" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "fan-configurer" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "lxd-container-provisioner" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "proxy-config-updater" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "instance-mutater" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "log-sender" manifold worker returned unexpected error: sending log message: websocket: close 1006 (abnormal closure): unexpected EOF: set tcp 10.248.136.100:51018: use of closed network connection
+machine-4: 15:14:29 ERROR juju.worker.dependency "reboot-executor" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "storage-provisioner" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-0: 15:14:29 ERROR juju.worker.dependency "instance-mutater" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-0: 15:14:29 ERROR juju.worker.dependency "machiner" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "api-address-updater" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-0: 15:14:29 ERROR juju.worker.dependency "machine-action-runner" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "machine-action-runner" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-0: 15:14:29 ERROR juju.worker.dependency "fan-configurer" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "valid-credential-flag" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-0: 15:14:29 ERROR juju.worker.dependency "state-converter" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "state-converter" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-0: 15:14:29 ERROR juju.worker.dependency "migration-inactive-flag" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "migration-inactive-flag" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-4: 15:14:29 ERROR juju.worker.dependency "api-caller" manifold worker returned unexpected error: api connection broken unexpectedly
+machine-0: 15:14:29 ERROR juju.worker.dependency "valid-credential-flag" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-0: 15:14:29 ERROR juju.worker.dependency "api-caller" manifold worker returned unexpected error: api connection broken unexpectedly
+machine-2: 15:14:29 ERROR juju.worker.dependency "log-sender" manifold worker returned unexpected error: sending log message: websocket: close 1006 (abnormal closure): unexpected EOF: set tcp 10.248.136.118:41678: use of closed network connection
+machine-0: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-0: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-0: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-3: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-2: 15:14:29 ERROR juju.worker.dependency "migration-minion" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-3: 15:14:29 ERROR juju.worker.dependency "lxd-container-provisioner" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-3: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: connection is shutdown before send: connection is shut down
+machine-3: 15:14:29 ERROR juju.worker.dependency "upgrade-series" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-3: 15:14:29 ERROR juju.worker.dependency "valid-credential-flag" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-3: 15:14:29 ERROR juju.worker.dependency "migration-inactive-flag" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-3: 15:14:29 ERROR juju.worker.dependency "api-caller" manifold worker returned unexpected error: api connection broken unexpectedly
+machine-2: 15:14:29 ERROR juju.api.watcher error trying to stop watcher: websocket: close sent
+machine-2: 15:14:29 ERROR juju.worker.dependency "migration-inactive-flag" manifold worker returned unexpected error: watcher has been stopped (stopped)
+machine-2: 15:14:29 ERROR juju.worker.dependency "api-caller" manifold worker returned unexpected error: api connection broken unexpectedly
+
+[32mINFO    [0m pytest_operator.plugin:plugin.py:1039 Forgetting model main...
