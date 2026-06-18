@@ -14,8 +14,8 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "ops==3.7.0",
-  "pydantic==2.13.2",
+  "ops==3.7.1",
+  "pydantic==2.13.4",
 ]
 
 [dependency-groups]
