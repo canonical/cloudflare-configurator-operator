@@ -13,6 +13,7 @@ jobs:
       pull-requests: write
     with:
       with-uv: true
+      self-hosted-runner: false
   integration-tests:
     uses: canonical/operator-workflows/.github/workflows/integration_test.yaml@main
     secrets: inherit
@@ -21,6 +22,7 @@ jobs:
       provider: lxd
       juju-channel: 3.6/stable
       with-uv: true
+      self-hosted-runner: false
   allure-report:
     if: ${{ !cancelled() && github.event_name == 'schedule' }}
     needs:
